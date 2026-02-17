@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SarcasmExplain-5K Dataset</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0a0e1a;
+      --surface: #111827;
+      --border: #1e2d45;
+      --accent: #3b82f6;
+      --accent2: #8b5cf6;
+      --gold: #f59e0b;
+      --text: #e2e8f0;
+      --muted: #64748b;
+      --success: #10b981;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(59,130,246,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59,130,246,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Header */
+    header {
+      padding: 60px 0 48px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.3);
+      color: var(--accent);
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 2px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      line-height: 1.15;
+      color: #f8fafc;
+      margin-bottom: 16px;
+    }
+
+    h1 em {
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      color: var(--muted);
+      line-height: 1.7;
+      max-width: 640px;
+      margin-bottom: 28px;
+    }
+
+    .meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .meta-item span {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    /* Stats row */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      margin: 40px 0;
+    }
+
+    .stat {
+      background: var(--surface);
+      padding: 24px 20px;
+      text-align: center;
+    }
+
+    .stat-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem;
+      color: var(--accent);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* Section */
+    section { margin: 48px 0; }
+
+    h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem;
+      margin-bottom: 20px;
+      color: #f8fafc;
+    }
+
+    h3 {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    p { color: var(--muted); line-height: 1.75; margin-bottom: 12px; font-size: 0.95rem; }
+
+    /* Explanation types grid */
+    .exp-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .exp-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 20px;
+      transition: border-color 0.2s;
+    }
+
+    .exp-card:hover { border-color: var(--accent); }
+
+    .exp-card.highlight { border-color: rgba(139,92,246,0.4); background: rgba(139,92,246,0.05); }
+
+    .exp-tag {
+      display: inline-block;
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 2px 8px;
+      border-radius: 1px;
+      margin-bottom: 8px;
+    }
+
+    .tag-cognitive { background: rgba(59,130,246,0.15); color: #60a5fa; }
+    .tag-intent { background: rgba(139,92,246,0.15); color: #a78bfa; }
+    .tag-contrastive { background: rgba(245,158,11,0.15); color: #fbbf24; }
+    .tag-textual { background: rgba(16,185,129,0.15); color: #34d399; }
+    .tag-rule { background: rgba(239,68,68,0.15); color: #f87171; }
+
+    .exp-card p { font-size: 0.85rem; margin: 0; }
+
+    /* Example box */
+    .example-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent);
+      padding: 20px 24px;
+      margin: 20px 0;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.82rem;
+    }
+
+    .example-box .label {
+      color: var(--muted);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 6px;
+    }
+
+    .example-box .value {
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* Access gate */
+    .gate-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 40px;
+      margin: 48px 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gate-section::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+    }
+
+    .gate-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.6rem;
+      margin-bottom: 8px;
+    }
+
+    .gate-subtitle {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 32px;
+    }
+
+    /* Steps */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: 32px;
+    }
+
+    .step {
+      display: flex;
+      gap: 20px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--border);
+      align-items: flex-start;
+    }
+
+    .step:last-child { border-bottom: none; }
+
+    .step-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--accent);
+      background: rgba(59,130,246,0.1);
+      border: 1px solid rgba(59,130,246,0.2);
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .step-content h4 { font-size: 0.9rem; font-weight: 500; margin-bottom: 4px; }
+    .step-content p { font-size: 0.83rem; margin: 0; }
+
+    /* Form links panel */
+    #formPanel { display: none; margin-bottom: 28px; }
+
+    .form-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .form-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(59,130,246,0.05);
+      border: 1px solid rgba(59,130,246,0.2);
+      padding: 14px 16px;
+    }
+
+    .form-num {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--accent);
+      min-width: 24px;
+    }
+
+    .form-type-tag {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 1px;
+    }
+
+    .form-link {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-family: 'DM Mono', monospace;
+    }
+
+    .form-link:hover { color: #93c5fd; text-decoration: underline; }
+
+    .form-link-btn {
+      margin-left: auto;
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .form-link-btn:hover { background: #2563eb; }
+
+    /* Code entry */
+    .code-entry { margin-top: 20px; }
+
+    .code-entry label {
+      display: block;
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .code-inputs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+
+    .code-input {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 0.9rem;
+      padding: 10px 16px;
+      width: 160px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .code-input:focus { border-color: var(--accent); }
+    .code-input.valid { border-color: var(--success); }
+    .code-input.invalid { border-color: var(--danger); }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 28px;
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      letter-spacing: 0.05em;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+
+    .btn-primary:hover { background: #2563eb; transform: translateY(-1px); }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+    }
+
+    .btn-secondary:hover { background: rgba(59,130,246,0.1); }
+
+    .btn-success {
+      background: var(--success);
+      color: white;
+    }
+
+    /* Status messages */
+    .msg {
+      padding: 12px 16px;
+      font-size: 0.85rem;
+      font-family: 'DM Mono', monospace;
+      margin-top: 12px;
+      display: none;
+    }
+
+    .msg-error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #f87171; }
+    .msg-success { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #34d399; }
+
+    /* Access revealed */
+    #accessGranted {
+      display: none;
+      background: rgba(16,185,129,0.08);
+      border: 1px solid rgba(16,185,129,0.3);
+      padding: 32px;
+      text-align: center;
+      margin-top: 24px;
+    }
+
+    #accessGranted .check { font-size: 2rem; margin-bottom: 12px; }
+
+    #accessGranted h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.3rem;
+      color: var(--success);
+      text-transform: none;
+      letter-spacing: 0;
+      margin-bottom: 8px;
+    }
+
+    #accessGranted p { font-size: 0.9rem; margin-bottom: 20px; }
+
+    .hf-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--success);
+      color: white;
+      text-decoration: none;
+      padding: 12px 28px;
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      transition: background 0.2s;
+    }
+
+    .hf-link:hover { background: #059669; }
+
+    /* Citation */
+    .citation-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 20px;
+      font-family: 'DM Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.7;
+      white-space: pre-wrap;
+      overflow-x: auto;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 0;
+      margin-top: 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: gap;
+      gap: 12px;
+    }
+
+    footer p { font-size: 0.8rem; color: var(--muted); margin: 0; }
+
+    footer a { color: var(--accent); text-decoration: none; font-family: 'DM Mono', monospace; font-size: 12px; }
+
+    /* Divider */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 48px 0;
+    }
+
+    @media (max-width: 600px) {
+      .gate-section { padding: 24px 20px; }
+      .code-inputs { flex-direction: column; }
+      .code-input { width: 100%; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <header>
+    <div class="badge">📄 NLP Dataset · 2024</div>
+    <h1>SarcasmExplain-5K:<br/><em>Multi-Perspective</em> Sarcasm<br/>Explanation Dataset</h1>
+    <p class="subtitle">
+      A balanced dataset of 5,000 Reddit sarcasm instances annotated with five complementary
+      explanation types — cognitive, intent-based, contrastive, textual, and rule-based —
+      generated via a systematic LLM pipeline and validated through human evaluation.
+    </p>
+    <div class="meta-row">
+      <div class="meta-item">👤 Author: <span>Maliha Binte Mamun</span></div>
+      <div class="meta-item">📅 Released: <span>2024</span></div>
+      <div class="meta-item">🏛 Affiliation: <span>Independent Researcher</span></div>
+      <div class="meta-item">🔗 <a href="https://github.com/maliha-usui" style="color:var(--accent); font-family:'DM Mono',monospace; font-size:12px;">github.com/maliha-usui</a></div>
+    </div>
+  </header>
+
+  <!-- STATS -->
+  <div class="stats">
+    <div class="stat">
+      <span class="stat-num">5,000</span>
+      <span class="stat-label">Total Instances</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">2,500</span>
+      <span class="stat-label">Sarcastic</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">2,500</span>
+      <span class="stat-label">Non-Sarcastic</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">5</span>
+      <span class="stat-label">Explanation Types</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">255</span>
+      <span class="stat-label">Evaluation Forms</span>
+    </div>
+    <div class="stat">
+      <span class="stat-num">Reddit</span>
+      <span class="stat-label">Data Source</span>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <section>
+    <h2>About the Dataset</h2>
+    <p>
+      Detecting sarcasm is one of the most challenging tasks in natural language understanding.
+      Unlike existing sarcasm datasets that provide only binary labels, SarcasmExplain-5K
+      provides <strong style="color:var(--text);">five types of natural language explanations</strong> for each sarcastic instance,
+      enabling research in explainable AI, pragmatic language understanding, and human-AI communication.
+    </p>
+    <p>
+      The dataset is built on Reddit conversations (r/sarcasm), balanced across sarcastic and
+      non-sarcastic instances, and enriched through a systematic GPT-4 pipeline designed to generate
+      diverse, high-quality explanations from multiple linguistic perspectives.
+    </p>
+  </section>
+
+  <!-- EXPLANATION TYPES -->
+  <section>
+    <h2>Explanation Types</h2>
+    <p>Each sarcastic instance includes five complementary explanations. Human evaluation focuses on
+    Cognitive and Intent-Based types, with Contrastive used for Cognitive XAI research.</p>
+    <div class="exp-grid">
+
+      <div class="exp-card highlight">
+        <div class="exp-tag tag-cognitive">Cognitive ★ Evaluated</div>
+        <h3>Why does the mind recognise it?</h3>
+        <p>Describes the mental reasoning process — what knowledge or belief the speaker is invoking to express sarcasm.</p>
+      </div>
+
+      <div class="exp-card highlight">
+        <div class="exp-tag tag-intent">Intent-Based ★ Evaluated</div>
+        <h3>What is the speaker's goal?</h3>
+        <p>Identifies the communicative intent — what the speaker is trying to achieve socially or emotionally.</p>
+      </div>
+
+      <div class="exp-card highlight">
+        <div class="exp-tag tag-contrastive">Contrastive ★ XAI Research</div>
+        <h3>What would sincerity look like?</h3>
+        <p>Contrasts the sarcastic utterance with a sincere alternative to highlight the gap between literal and intended meaning.</p>
+      </div>
+
+      <div class="exp-card">
+        <div class="exp-tag tag-textual">Textual</div>
+        <h3>How do the words signal it?</h3>
+        <p>Analyses the rhetorical and linguistic features — word choice, tone, exaggeration — that signal sarcasm.</p>
+      </div>
+
+      <div class="exp-card">
+        <div class="exp-tag tag-rule">Rule-Based</div>
+        <h3>What patterns identify it?</h3>
+        <p>Lists concrete linguistic markers (punctuation, register shift, hyperbole) that can be formalised as rules.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- EXAMPLE -->
+  <section>
+    <h2>Sample Entry</h2>
+    <div class="example-box">
+      <div class="label">Comment</div>
+      <div class="value" style="color:#60a5fa; margin-bottom:14px;">"Yeah, like the president is a big deal!"</div>
+
+      <div class="label">Parent Comment</div>
+      <div class="value" style="margin-bottom:14px;">And even a prominent democrat defended him.</div>
+
+      <div class="label">Cognitive Explanation</div>
+      <div class="value" style="color:#a78bfa; margin-bottom:14px;">The speaker invokes the common knowledge that the presidency is a position of immense power and responsibility — using that as a foil to express dismissiveness or mock someone who downplays the president's importance.</div>
+
+      <div class="label">Intent-Based Explanation</div>
+      <div class="value" style="color:#34d399; margin-bottom:14px;">The speaker is mocking whoever minimizes the president's significance, asserting their own belief that presidential authority is undeniable. Social goal: highlight absurdity of the counterpart's position.</div>
+
+      <div class="label">Contrastive Explanation</div>
+      <div class="value" style="color:#fbbf24;">A sincere version: "The president is indeed a significant figure" — the sarcastic comment inverts this through dismissive phrasing and vocal emphasis on "big deal."</div>
+    </div>
+  </section>
+
+  <hr class="divider"/>
+
+  <!-- ACCESS GATE -->
+  <div class="gate-section" id="gateSection">
+    <h2 class="gate-title">Access the Dataset</h2>
+    <p class="gate-subtitle">
+      This dataset is <strong style="color:var(--text)">free and open for research</strong>.
+      To maintain quality and gather human evaluation data, access requires completing
+      3 annotation forms (≈10 minutes total).
+    </p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-content">
+          <h4>Click "Get My Forms"</h4>
+          <p>Three forms will be randomly assigned to you from the Cognitive and Intent-Based evaluation pools.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-content">
+          <h4>Complete all 3 forms</h4>
+          <p>Each form takes ~3 minutes. You'll rate 10 sarcasm explanations and optionally write corrections.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-content">
+          <h4>Enter your completion codes</h4>
+          <p>At the end of each form, you'll receive a unique 6-character code. Enter all 3 codes below.</p>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-content">
+          <h4>Instant dataset access</h4>
+          <p>Your HuggingFace download link will appear immediately after code verification.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 1: Get Forms Button -->
+    <div id="step1">
+      <button class="btn btn-primary" onclick="assignForms()">
+        → Get My 3 Forms
+      </button>
+    </div>
+
+    <!-- Step 2: Form Links -->
+    <div id="formPanel">
+      <h3>Your Assigned Forms</h3>
+      <p style="font-size:0.83rem; color:var(--muted); margin-bottom:12px;">
+        Open each form in a new tab, complete it, and note the 6-character code shown at the end.
+      </p>
+      <div class="form-list" id="formList"></div>
+    </div>
+
+    <!-- Step 3: Code Entry -->
+    <div class="code-entry" id="codeEntry" style="display:none;">
+      <label>Enter Your 3 Completion Codes</label>
+      <div class="code-inputs">
+        <input class="code-input" id="code1" maxlength="6" placeholder="CODE 1" oninput="this.value=this.value.toUpperCase()"/>
+        <input class="code-input" id="code2" maxlength="6" placeholder="CODE 2" oninput="this.value=this.value.toUpperCase()"/>
+        <input class="code-input" id="code3" maxlength="6" placeholder="CODE 3" oninput="this.value=this.value.toUpperCase()"/>
+      </div>
+      <button class="btn btn-primary" onclick="verifyCodes()">→ Verify & Get Access</button>
+      <div class="msg msg-error" id="errorMsg"></div>
+    </div>
+
+    <!-- Step 4: Access Granted -->
+    <div id="accessGranted">
+      <div class="check">✅</div>
+      <h3>Access Granted</h3>
+      <p>Thank you for contributing to the evaluation. Your annotation helps improve the dataset quality.</p>
+      <a class="hf-link" href="https://huggingface.co/datasets/maliha/sarcasm-explain-5k" target="_blank">
+        🤗 Download on Hugging Face →
+      </a>
+      <p style="margin-top:16px; font-size:0.8rem; color:var(--muted);">
+        Please cite this dataset if you use it in your research (see citation below).
+      </p>
+    </div>
+  </div>
+
+  <!-- DATASET STRUCTURE -->
+  <section>
+    <h2>Dataset Structure</h2>
+    <div class="example-box">
+      <div class="label">CSV Columns</div>
+      <div class="value">
+label                    → 0 (non-sarcastic) | 1 (sarcastic)
+comment                  → The original Reddit comment
+parent_comment           → Conversational context
+label_name               → "sarcastic" | "non_sarcastic"
+rephrased_comment        → Non-sarcastic paraphrase
+cognitive_explanation    → Mental reasoning perspective
+intent_based_explanation → Speaker's communicative goal
+contrastive_explanation  → Sarcastic vs. sincere comparison
+textual_explanation      → Linguistic analysis perspective
+rule_based_explanation   → Linguistic markers identified
+      </div>
+    </div>
+  </section>
+
+  <!-- HUMAN EVALUATION -->
+  <section>
+    <h2>Human Evaluation Framework</h2>
+    <p>
+      Each explanation type has <strong style="color:var(--text)">255 evaluation forms</strong>,
+      with each form covering 10 unique instances.
+      Evaluators rate explanation clarity (1–5), agree or disagree with the LLM-generated
+      explanation, and optionally provide corrected explanations when they disagree.
+    </p>
+    <p>
+      This <em>contribute-to-access</em> model ensures ongoing community-driven
+      quality validation — a key methodological contribution of this work.
+    </p>
+    <p>
+      Human evaluation focuses on <strong style="color:#60a5fa">Cognitive</strong> and
+      <strong style="color:#a78bfa">Intent-Based</strong> explanations, with
+      <strong style="color:#fbbf24">Contrastive</strong> forms used for Cognitive XAI research.
+    </p>
+  </section>
+
+  <!-- CITATION -->
+  <section>
+    <h2>Citation</h2>
+    <pre class="citation-box">@misc{mamun2024sarcasmexplain,
+  author    = {Mamun, Maliha Binte},
+  title     = {SarcasmExplain-5K: A Multi-Perspective Sarcasm Explanation Dataset},
+  year      = {2024},
+  publisher = {HuggingFace},
+  url       = {https://huggingface.co/datasets/maliha/sarcasm-explain-5k},
+  note      = {Independent research. Contact: bintemaliha19@gmail.com}
+}</pre>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2024 Maliha Binte Mamun · Independent Research</p>
+    <div style="display:flex; gap:20px;">
+      <a href="https://github.com/maliha-usui">GitHub</a>
+      <a href="https://linkedin.com/in/malihabintemamun">LinkedIn</a>
+      <a href="mailto:bintemaliha19@gmail.com">Contact</a>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  // =====================================================================
+  // FORM DATABASE
+  // Replace these URLs with your actual Google Form links.
+  // Add the completion code for each form (set in form confirmation message).
+  // Format: { url: "FORM_URL", type: "Cognitive" | "Intent-Based" | "Contrastive", code: "XXXXXX" }
+  // =====================================================================
+  const FORMS = [
+    // --- COGNITIVE FORMS (add your real URLs here) ---
+    { url: "https://docs.google.com/forms/d/FORM_ID_1/viewform", type: "Cognitive", code: "COG001" },
+    { url: "https://docs.google.com/forms/d/FORM_ID_2/viewform", type: "Cognitive", code: "COG002" },
+    { url: "https://docs.google.com/forms/d/FORM_ID_3/viewform", type: "Cognitive", code: "COG003" },
+    { url: "https://docs.google.com/forms/d/FORM_ID_4/viewform", type: "Cognitive", code: "COG004" },
+    { url: "https://docs.google.com/forms/d/FORM_ID_5/viewform", type: "Cognitive", code: "COG005" },
+    { url: "https://docs.google.com/forms/d/FORM_ID_6/viewform", type: "Cognitive", code: "COG006" },
+    { url: "https://docs.google.com/forms/d/FORM_ID_7/viewform", type: "Cognitive", code: "COG007" },
+    { url: "https://docs.google.com/forms/d/FORM_ID_8/viewform", type: "Cognitive", code: "COG008" },
+    { url: "https://docs.google.com/forms/d/FORM_ID_9/viewform", type: "Cognitive", code: "COG009" },
+    { url: "https://docs.google.com/forms/d/FORM_ID_10/viewform", type: "Cognitive", code: "COG010" },
+
+    // --- INTENT-BASED FORMS ---
+    { url: "https://docs.google.com/forms/d/FORM_ID_11/viewform", type: "Intent-Based", code: "INT001" },
+    { url: "https://docs.google.com/forms/d/FORM_ID_12/viewform", type: "Intent-Based", code: "INT002" },
+    { url: "https://docs.google.com/forms/d/FORM_ID_13/viewform", type: "Intent-Based", code: "INT003" },
+    { url: "https://docs.google.com/forms/d/FORM_ID_14/viewform", type: "Intent-Based", code: "INT004" },
+    { url: "https://docs.google.com/forms/d/FORM_ID_15/viewform", type: "Intent-Based", code: "INT005" },
+    { url: "https://docs.google.com/forms/d/FORM_ID_16/viewform", type: "Intent-Based", code: "INT006" },
+    { url: "https://docs.google.com/forms/d/FORM_ID_17/viewform", type: "Intent-Based", code: "INT007" },
+    { url: "https://docs.google.com/forms/d/FORM_ID_18/viewform", type: "Intent-Based", code: "INT008" },
+    { url: "https://docs.google.com/forms/d/FORM_ID_19/viewform", type: "Intent-Based", code: "INT009" },
+    { url: "https://docs.google.com/forms/d/FORM_ID_20/viewform", type: "Intent-Based", code: "INT010" },
+
+    // --- ADD MORE FORMS HERE (up to all 255 per type) ---
+    // You can add Contrastive forms too:
+    // { url: "...", type: "Contrastive", code: "CON001" },
+  ];
+
+  // Valid codes set (auto-generated from FORMS array)
+  const VALID_CODES = new Set(FORMS.map(f => f.code));
+
+  let assignedForms = [];
+
+  function shuffle(arr) {
+    const a = [...arr];
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  function assignForms() {
+    // Pick 3 random forms from the pool (Cognitive + Intent-Based)
+    const pool = FORMS.filter(f => f.type === "Cognitive" || f.type === "Intent-Based");
+    const shuffled = shuffle(pool);
+    assignedForms = shuffled.slice(0, 3);
+
+    // Render form list
+    const list = document.getElementById('formList');
+    list.innerHTML = assignedForms.map((f, i) => `
+      <div class="form-item">
+        <span class="form-num">0${i+1}</span>
+        <span class="form-type-tag ${f.type === 'Cognitive' ? 'tag-cognitive' : 'tag-intent'}">${f.type}</span>
+        <a class="form-link" href="${f.url}" target="_blank">Open Form ${i+1}</a>
+        <a class="form-link-btn" href="${f.url}" target="_blank">Open →</a>
+      </div>
+    `).join('');
+
+    document.getElementById('formPanel').style.display = 'block';
+    document.getElementById('codeEntry').style.display = 'block';
+    document.getElementById('step1').style.display = 'none';
+    document.getElementById('formPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function verifyCodes() {
+    const c1 = document.getElementById('code1').value.trim().toUpperCase();
+    const c2 = document.getElementById('code2').value.trim().toUpperCase();
+    const c3 = document.getElementById('code3').value.trim().toUpperCase();
+    const errorMsg = document.getElementById('errorMsg');
+
+    // Reset styles
+    ['code1','code2','code3'].forEach(id => {
+      document.getElementById(id).classList.remove('valid','invalid');
+    });
+
+    if (!c1 || !c2 || !c3) {
+      showError("Please enter all 3 completion codes.");
+      return;
+    }
+
+    if (c1 === c2 || c1 === c3 || c2 === c3) {
+      showError("Each code must be unique — please use different forms.");
+      return;
+    }
+
+    const results = [c1, c2, c3].map(c => VALID_CODES.has(c));
+    [c1, c2, c3].forEach((c, i) => {
+      const input = document.getElementById(`code${i+1}`);
+      input.classList.add(VALID_CODES.has(c) ? 'valid' : 'invalid');
+    });
+
+    if (results.every(Boolean)) {
+      errorMsg.style.display = 'none';
+      document.getElementById('codeEntry').style.display = 'none';
+      document.getElementById('formPanel').style.display = 'none';
+      document.getElementById('accessGranted').style.display = 'block';
+      document.getElementById('accessGranted').scrollIntoView({ behavior: 'smooth' });
+    } else {
+      const invalid = [c1, c2, c3].filter(c => !VALID_CODES.has(c));
+      showError(`Invalid code(s): ${invalid.join(', ')}. Please check and re-enter.`);
+    }
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+</script>
+
+</body>
+</html>
