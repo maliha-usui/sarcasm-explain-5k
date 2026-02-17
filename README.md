@@ -181,7 +181,7 @@ Product Development Engineer — Pi Photonics, Hamamatsu, Japan
 
 - 📮 Email: [bintemaliha19@gmail.com](mailto:bintemaliha19@gmail.com)
 - 🐙 GitHub: [@maliha-usui](https://github.com/maliha-usui)
-- 💼 LinkedIn: [malihabintemamun](https://linkedin.com/in/malihabintemamun)
+- 💼 LinkedIn: [Maliha Binte Mamun](www.linkedin.com/in/maliha-binte-mamun-8a5708161)
 - 🤗 HuggingFace: [maliha](https://huggingface.co/maliha)
 
 ---
