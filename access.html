@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Request Access · SarcasmExplain-5K</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,400;0,500;1,400&family=Newsreader:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0e0f0e;
+      --surface: #161714;
+      --border: #2a2c28;
+      --accent: #c8f04a;
+      --accent-dim: #8aab1e;
+      --text: #e8e9e4;
+      --text-dim: #8a8c84;
+      --text-muted: #52534e;
+      --success: #4af094;
+      --error: #f04a4a;
+      --radius: 8px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Newsreader', Georgia, serif;
+      font-size: 17px;
+      line-height: 1.65;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 48px 48px;
+      opacity: 0.35;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    header {
+      padding: 48px 0 40px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 56px;
+    }
+
+    .breadcrumb {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+      letter-spacing: 0.08em;
+      margin-bottom: 20px;
+    }
+    .breadcrumb a { color: var(--text-muted); text-decoration: none; }
+    .breadcrumb a:hover { color: var(--accent); }
+
+    h1 {
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: 300;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+    h1 em { font-style: italic; color: var(--accent); }
+
+    .subtitle {
+      margin-top: 12px;
+      color: var(--text-dim);
+      font-size: 16px;
+      font-weight: 300;
+    }
+
+    .section-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent-dim);
+      margin-bottom: 18px;
+    }
+
+    /* STATUS BANNER */
+    .status-banner {
+      background: rgba(200, 240, 74, 0.06);
+      border: 1px solid rgba(200, 240, 74, 0.2);
+      border-radius: var(--radius);
+      padding: 16px 20px;
+      margin-bottom: 40px;
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: var(--accent-dim);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .status-banner span:first-child { font-size: 18px; }
+
+    /* MAIN CARD */
+    .access-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px;
+      margin-bottom: 32px;
+    }
+
+    .access-card h2 {
+      font-size: 24px;
+      font-weight: 400;
+      margin-bottom: 10px;
+    }
+
+    .card-desc {
+      font-size: 15px;
+      color: var(--text-dim);
+      margin-bottom: 28px;
+      max-width: 500px;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    label {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    input[type="text"], input[type="email"] {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: 'DM Mono', monospace;
+      font-size: 14px;
+      padding: 12px 16px;
+      width: 100%;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    input[type="text"]:focus,
+    input[type="email"]:focus { border-color: var(--accent); }
+    input[type="text"]::placeholder,
+    input[type="email"]::placeholder { color: var(--text-muted); }
+
+    #code-input { text-transform: uppercase; letter-spacing: 0.05em; }
+
+    .hint {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: -4px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: var(--radius);
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      padding: 13px 32px;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s;
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .btn-primary:hover { opacity: 0.85; transform: translateY(-1px); }
+    .btn-primary:active { transform: translateY(0); }
+
+    /* RESULT STATES */
+    .result-panel {
+      margin-top: 28px;
+      padding: 28px;
+      border-radius: var(--radius);
+      display: none;
+    }
+
+    .result-panel.success {
+      background: rgba(74, 240, 148, 0.06);
+      border: 1px solid rgba(74, 240, 148, 0.25);
+      display: block;
+    }
+
+    .result-panel.error {
+      background: rgba(240, 74, 74, 0.06);
+      border: 1px solid rgba(240, 74, 74, 0.25);
+      display: block;
+    }
+
+    .result-panel .result-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      margin-bottom: 12px;
+    }
+    .result-panel.success .result-title { color: var(--success); }
+    .result-panel.error .result-title { color: var(--error); }
+
+    .result-msg {
+      font-size: 15px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    .access-steps {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .access-step {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .step-num-sm {
+      font-family: 'DM Mono', monospace;
+      font-size: 11px;
+      background: rgba(74, 240, 148, 0.15);
+      color: var(--success);
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .step-body {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.55;
+    }
+
+    .step-body a {
+      color: var(--success);
+      text-decoration: none;
+    }
+    .step-body a:hover { text-decoration: underline; }
+
+    .step-body code {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      background: rgba(255,255,255,0.07);
+      padding: 2px 7px;
+      border-radius: 4px;
+      color: var(--text);
+    }
+
+    /* ALTERNATIVES */
+    .alt-section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 32px;
+      margin-bottom: 32px;
+    }
+
+    .alt-section h3 {
+      font-size: 18px;
+      font-weight: 400;
+      margin-bottom: 16px;
+    }
+
+    .alt-item {
+      border-bottom: 1px solid var(--border);
+      padding: 14px 0;
+      font-size: 15px;
+      color: var(--text-dim);
+    }
+
+    .alt-item:last-child { border-bottom: none; }
+
+    .alt-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .alt-item a { color: var(--accent); text-decoration: none; }
+    .alt-item a:hover { text-decoration: underline; }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 0;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    footer a { color: var(--text-muted); text-decoration: none; }
+    footer a:hover { color: var(--accent); }
+
+    @media (max-width: 600px) {
+      .access-card { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="breadcrumb">
+      <a href="index.html">SarcasmExplain-5K</a> / access
+    </div>
+    <h1>Request <em>Dataset Access</em></h1>
+    <p class="subtitle">Verify your annotation contribution and unlock the full SarcasmExplain-5K dataset on HuggingFace.</p>
+  </header>
+
+  <div class="status-banner">
+    <span>📋</span>
+    <div>Don't have a completion code yet? <a href="annotate.html" style="color:var(--accent)">Complete a 10-minute annotation form first →</a> Your completion code will be shown immediately after.</div>
+  </div>
+
+  <div class="access-card">
+    <div class="section-label">Step 1 — Verify your code</div>
+    <h2>Enter Completion Code</h2>
+    <p class="card-desc">Enter the code you received after completing a Cognitive or Intent annotation form. Codes look like <span style="font-family:'DM Mono',monospace;color:var(--accent)">SE5K-COG014-1EBAD543</span>.</p>
+
+    <div class="field-group">
+      <label for="code-input">Completion Code</label>
+      <input type="text" id="code-input" placeholder="SE5K-COG014-1EBAD543" maxlength="22" oninput="clearResult()" />
+      <div class="hint">Format: SE5K-[FORMID]-[8CHAR HASH]</div>
+    </div>
+
+    <div class="field-group">
+      <label for="email-input">HuggingFace Username <span style="color:var(--text-muted);font-size:10px">(optional, for faster approval)</span></label>
+      <input type="text" id="email-input" placeholder="your_hf_username" />
+    </div>
+
+    <button class="btn-primary" onclick="verifyCode()">Verify &amp; Get Access Instructions →</button>
+
+    <div class="result-panel" id="result-panel"></div>
+  </div>
+
+  <!-- ALTERNATIVES -->
+  <div class="alt-section">
+    <h3>Other Ways to Access</h3>
+    <div class="alt-item">
+      <div class="alt-label">ACADEMIC / RESEARCH USE</div>
+      If you are using the dataset for peer-reviewed research and cannot complete an annotation form, email us with your institutional affiliation and intended use: <a href="mailto:maliha@example.com">maliha@example.com</a>
+    </div>
+    <div class="alt-item">
+      <div class="alt-label">COURSE / CLASSROOM USE</div>
+      Instructors can arrange bulk access for students. Contact us with course details and we'll provide a class access code.
+    </div>
+    <div class="alt-item">
+      <div class="alt-label">CONTRIBUTE MULTIPLE FORMS</div>
+      Complete additional forms on the <a href="annotate.html">annotate page</a> — each form earns a new code. We appreciate contributions beyond the minimum!
+    </div>
+  </div>
+
+  <footer>
+    <div>SarcasmExplain-5K · EMNLP 2026</div>
+    <div>
+      <a href="https://huggingface.co/datasets/maliha/sarcasm-explain-5k" target="_blank">HuggingFace</a> ·
+      <a href="https://github.com/maliha-usui/sarcasm-explain-5k" target="_blank">GitHub</a> ·
+      <a href="annotate.html">Annotate</a>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  const CODES = {"COG001":"5C34C3E8","COG002":"6273C249","COG003":"668A5C9D","COG004":"C6644EA4","COG005":"E33DD6F0","COG006":"85C73A7E","COG007":"5F5CF48A","COG008":"010E11D4","COG009":"47A2A1C7","COG010":"1F8928A8","COG011":"332F3AEB","COG012":"46BC1097","COG013":"AD854EA6","COG014":"1EBAD543","COG015":"50E8F97B","COG016":"41D4B276","COG017":"FB8CE581","COG018":"CBD0B0B6","COG019":"A259D37B","COG020":"D4AD618C","COG021":"68E9A137","COG022":"C5AEACF3","COG023":"0ACE1F4D","COG024":"20E16F07","COG025":"8D8A1A8E","COG026":"04CB575C","COG027":"22463296","COG028":"D11A3B3A","COG029":"F6F29842","COG030":"EF4B9D54","COG031":"3029024A","COG032":"75ACDD4C","COG033":"1AC84CD5","COG034":"5A535793","COG035":"8968D621","COG036":"AF4A2701","COG037":"F2E25A5D","COG038":"FC7E3502","COG039":"E7A5B8F8","COG040":"3B05FC5E","COG041":"5F752F50","COG042":"A4920776","COG043":"0BC13ACE","COG044":"B9EBA4E6","COG045":"86B68C9A","COG046":"AEF498F5","COG047":"25EE76CB","COG048":"FB3110E1","COG049":"1C9CA0EE","COG050":"F4F5C826","INT001":"B6A56C16","INT002":"62390AF5","INT003":"48361F6F","INT004":"52A069FB","INT005":"AA77F390","INT006":"4DE6A363","INT007":"CC221395","INT008":"5DC69842","INT009":"090902C7","INT010":"65C3C0ED","INT011":"D03083C8","INT012":"B07B0DF7","INT013":"8D4ED389","INT014":"A944D4F3","INT015":"9BAAF5A8","INT016":"B6D2147E","INT017":"B1AC096A","INT018":"1BDFF2F5","INT019":"F18E49A4","INT020":"FEB9B516","INT021":"29FBDA2B","INT022":"4E45BB8B","INT023":"C7E0DB68","INT024":"94FE261C","INT025":"0441D0D6","INT026":"BACB3B04","INT027":"924709C3","INT028":"E2782053","INT029":"2DDB0C86","INT030":"83D497B7","INT031":"3200CCCB","INT032":"919573DD","INT033":"247C34D5","INT034":"F5C36B68","INT035":"AC96DF29","INT036":"343B610A","INT037":"2E6B4C4E","INT038":"0387DB66","INT039":"925FA499","INT040":"07957A68","INT041":"D2B8B1E1","INT042":"F7D6457D","INT043":"1BC44862","INT044":"D24D7826","INT045":"4AC129BF","INT046":"4F6755C8","INT047":"A7945B32","INT048":"7C902525","INT049":"87F7858F","INT050":"5436BF9D"};
+
+  const HF_DATASET_URL = "https://huggingface.co/datasets/maliha/sarcasm-explain-5k";
+  const CONTACT_EMAIL = "maliha@example.com"; // REPLACE WITH YOUR ACTUAL EMAIL
+
+  function verifyCode() {
+    const raw = document.getElementById('code-input').value.trim().toUpperCase();
+    const hfUser = document.getElementById('email-input').value.trim();
+    const panel = document.getElementById('result-panel');
+
+    if (!raw) {
+      showResult('error', '✗ MISSING CODE', 'Please enter your completion code.');
+      return;
+    }
+
+    // Expected format: SE5K-COG014-1EBAD543
+    const match = raw.match(/^SE5K-((?:COG|INT)\d{3})-([A-F0-9]{8})$/);
+    if (!match) {
+      showResult('error', '✗ INVALID FORMAT', 'Code format should be <code>SE5K-COG014-1EBAD543</code>. Check for typos or extra spaces.');
+      return;
+    }
+
+    const formId = match[1];
+    const providedHash = match[2];
+    const expectedHash = CODES[formId];
+
+    if (!expectedHash) {
+      showResult('error', '✗ UNKNOWN FORM ID', `"${formId}" is not a valid form ID. Valid IDs are COG001–COG050 and INT001–INT050.`);
+      return;
+    }
+
+    if (providedHash !== expectedHash) {
+      showResult('error', '✗ CODE MISMATCH', `The hash portion of your code doesn't match what we have for ${formId}. Please re-copy your code from the <a href="annotate.html">annotate page</a>.`);
+      return;
+    }
+
+    const type = formId.startsWith('COG') ? 'Cognitive' : 'Intent-based';
+    const hfNote = hfUser
+      ? `You entered HuggingFace username: <code>${hfUser}</code>. `
+      : 'You can include your HuggingFace username in the email for faster approval. ';
+
+    showResult('success', '✓ CODE VERIFIED', `Your annotation contribution for form <code>${formId}</code> (${type}) has been verified.`, `
+      <div class="access-steps">
+        <div class="access-step">
+          <div class="step-num-sm">1</div>
+          <div class="step-body">
+            Visit the <a href="${HF_DATASET_URL}" target="_blank">SarcasmExplain-5K dataset page on HuggingFace →</a>
+          </div>
+        </div>
+        <div class="access-step">
+          <div class="step-num-sm">2</div>
+          <div class="step-body">
+            Click <strong>"Access repository"</strong> and fill in the access request form. In the <em>reason</em> field, paste your completion code: <code>${raw}</code>
+          </div>
+        </div>
+        <div class="access-step">
+          <div class="step-num-sm">3</div>
+          <div class="step-body">
+            ${hfNote}We'll approve access within 24–48 hours. You'll receive a HuggingFace notification when access is granted.
+          </div>
+        </div>
+        <div class="access-step">
+          <div class="step-num-sm">4</div>
+          <div class="step-body">
+            Alternatively, email <a href="mailto:${CONTACT_EMAIL}?subject=Dataset access - ${raw}&body=Completion code: ${raw}%0AHuggingFace username: ${hfUser || '[your username]'}">${CONTACT_EMAIL}</a> with your code and we'll manually approve your access.
+          </div>
+        </div>
+      </div>
+    `);
+  }
+
+  function showResult(type, title, msg, extra) {
+    const panel = document.getElementById('result-panel');
+    panel.className = `result-panel ${type}`;
+    panel.innerHTML = `
+      <div class="result-title">${title}</div>
+      <div class="result-msg">${msg}</div>
+      ${extra || ''}
+    `;
+  }
+
+  function clearResult() {
+    const panel = document.getElementById('result-panel');
+    panel.className = 'result-panel';
+    panel.innerHTML = '';
+  }
+
+  // Pre-fill from URL param: access.html?code=SE5K-COG014-1EBAD543
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('code')) {
+    document.getElementById('code-input').value = params.get('code');
+    verifyCode();
+  }
+</script>
+</body>
+</html>
