@@ -45,7 +45,7 @@ Access is free — you contribute a small amount of annotation work in exchange.
 
 Access is approved within **24–48 hours** after submission.
 
-> 💡 **Preview available:** A 100-instance sample is freely available without registration: [`data/sample_100.csv`](data/sample_100.csv)
+> 💡 **Preview available:** A sample is freely available without registration: [`data/sample_data.csv`](data/sample_data.csv)
 
 ### Why contribute-to-access?
 
@@ -77,7 +77,7 @@ sarcasm-explain-5k/
 ├── annotate.html                     ← annotation forms + completion code lookup
 ├── access.html                       ← code verification + HuggingFace access guide
 ├── data/
-│   └── sample_100.csv                ← 100-instance preview (freely available)
+│   └── sample_data.csv                ← 8-instance preview (freely available)
 └── code/
     └── ParaphraseSarcasm.ipynb       ← full data generation pipeline
 ```
