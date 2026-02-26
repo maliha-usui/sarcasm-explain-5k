@@ -22,9 +22,34 @@ Unlike existing sarcasm datasets that provide only binary labels, this dataset p
 | Sarcastic | 2,500 |
 | Non-sarcastic | 2,500 |
 | Explanation types | 5 |
-| Evaluation forms | 255 per type |
+| Evaluation forms | 50 per type (COG + INT) |
 | Source | Reddit conversations |
 | Generation model | OpenAI GPT-4 |
+
+---
+
+## 📥 Accessing the Full Dataset
+
+The full 5,000-instance dataset is hosted on **HuggingFace with gated access**.
+
+Access is free — you contribute a small amount of annotation work in exchange.
+
+### How to get access
+
+| Step | Action |
+|---|---|
+| **1. Annotate** | Visit **[annotate.html](https://maliha-usui.github.io/sarcasm-explain-5k/annotate.html)** and choose any open Cognitive (COG) or Intent-based (INT) form |
+| **2. Rate** | Rate 10 sarcasm explanations for clarity (1–5) and optionally suggest improvements (~8 min) |
+| **3. Get your code** | After submitting, enter your Form ID (e.g. `COG014`) at the annotate page to receive your unique completion code (e.g. `SE5K-COG014-1EBAD543`) |
+| **4. Request access** | Visit **[access.html](https://maliha-usui.github.io/sarcasm-explain-5k/access.html)**, verify your code, then paste it into the [HuggingFace access request form](https://huggingface.co/datasets/maliha/sarcasm-explain-5k) |
+
+Access is approved within **24–48 hours** after submission.
+
+> 💡 **Preview available:** A 100-instance sample is freely available without registration: [`data/sample_100.csv`](data/sample_100.csv)
+
+### Why contribute-to-access?
+
+This model supports ongoing, community-driven quality validation of the dataset at no cost to anyone — your annotations directly improve the evaluation study for our EMNLP 2026 submission.
 
 ---
 
@@ -34,23 +59,25 @@ Each sarcastic instance includes five complementary explanations:
 
 | Type | Description | Human Evaluated |
 |---|---|---|
-| **Cognitive** | Why the mind recognises sarcasm — the belief or knowledge the speaker invokes | ✅ Yes |
-| **Intent-Based** | Speaker's communicative goal — what they are trying to achieve socially or emotionally | ✅ Yes |
-| **Contrastive** | Sarcastic vs. sincere comparison — what a genuine version would look like | ✅ (XAI research) |
+| **Cognitive** | Why the mind recognises sarcasm — the belief or knowledge the speaker invokes | ✅ Active (COG001–COG050) |
+| **Intent-Based** | Speaker's communicative goal — what they are trying to achieve socially or emotionally | ✅ Active (INT001–INT050) |
+| **Contrastive** | Sarcastic vs. sincere comparison — what a genuine version would look like | 🔜 Planned |
 | **Textual** | Linguistic features that signal sarcasm — word choice, tone, exaggeration | — |
 | **Rule-Based** | Formal linguistic markers — punctuation, register shift, hyperbole | — |
 
 ---
 
-## 📂 Dataset Structure
+## 📂 Repository Structure
 
 ```
 sarcasm-explain-5k/
 ├── README.md
 ├── LICENSE
 ├── index.html                        ← dataset landing page (GitHub Pages)
+├── annotate.html                     ← annotation forms + completion code lookup
+├── access.html                       ← code verification + HuggingFace access guide
 ├── data/
-│   └── sample_100.csv                ← 100-instance preview (50 sarcastic + 50 non-sarcastic)
+│   └── sample_100.csv                ← 100-instance preview (freely available)
 └── code/
     └── ParaphraseSarcasm.ipynb       ← full data generation pipeline
 ```
@@ -88,29 +115,35 @@ sarcasm-explain-5k/
 
 ---
 
-## 📥 Download the Full Dataset
-
-The full 5,000-instance dataset is hosted on HuggingFace with a contribute-to-access model.
-
-👉 **[Get access at the dataset page](https://maliha-usui.github.io/sarcasm-explain-5k)**
-
-To access the dataset, you complete **3 annotation forms** (≈10 minutes) from the Cognitive or Intent-Based evaluation pool. This enables ongoing crowd-sourced quality validation.
-
-A **100-instance preview** is available directly in this repository: [`data/sample_100.csv`](data/sample_100.csv)
-
----
-
 ## 👥 Human Evaluation Framework
 
-Each explanation type has **255 evaluation forms**, with each form covering 10 unique instances. Evaluators:
+Human evaluation focuses on **Cognitive** and **Intent-Based** explanation types, with **50 evaluation forms per type** (10 instances per form).
 
-1. **Rate clarity** of each explanation (1–5 scale)
-2. **Agree or disagree** with the generated explanation
-3. **Write a correction** if they disagree
+### Evaluation task per form
 
-This *contribute-to-access* model ensures ongoing community-driven quality validation — a key methodological contribution of this work.
+1. **Rate clarity** of each explanation (1–5 Likert scale)
+2. **Agree or disagree** with the generated explanation  
+3. **Write a correction** if the explanation is unclear or inaccurate (optional)
 
-Human evaluation focuses on **Cognitive** and **Intent-Based** explanations, with **Contrastive** forms used for Cognitive XAI research directions.
+### Evaluation form pools
+
+| Pool | Form IDs | Forms | Instances |
+|---|---|---|---|
+| Cognitive | COG001 – COG050 | 50 | 500 |
+| Intent-Based | INT001 – INT050 | 50 | 500 |
+
+Forms are available at [annotate.html](https://maliha-usui.github.io/sarcasm-explain-5k/annotate.html). Each completed form earns one completion code for dataset access.
+
+### Completion code format
+
+Codes follow the format `SE5K-[FORMID]-[HASH]`, for example:
+
+```
+SE5K-COG014-1EBAD543
+SE5K-INT031-3200CCCB
+```
+
+Enter your Form ID at the [annotate page](https://maliha-usui.github.io/sarcasm-explain-5k/annotate.html) to retrieve your code at any time.
 
 ---
 
@@ -145,14 +178,18 @@ This dataset supports research in:
 
 ---
 
-## 🗺️ Future Work
+## 🗺️ Roadmap
 
-- [ ] Complete human evaluation across all 255 forms per type
-- [ ] Publish quality analysis and inter-annotator agreement
-- [ ] Baseline experiments: does adding explanations improve sarcasm detection?
+- [x] Generate 5,000-instance dataset with 5 explanation types
+- [x] Publish sample (100 instances) to GitHub
+- [x] Host full dataset on HuggingFace (gated)
+- [x] Create contribute-to-access annotation system (COG + INT forms)
+- [x] Launch annotate.html + access.html on GitHub Pages
+- [ ] Collect 100–200 human evaluations per type
+- [ ] Publish inter-annotator agreement analysis
+- [ ] Baseline experiments: do explanations improve sarcasm detection?
+- [ ] Submit to EMNLP 2026
 - [ ] Cross-lingual extension (Japanese, multilingual)
-- [ ] Integration with Cognitive XAI frameworks
-- [ ] Multi-agent reasoning for pragmatic understanding
 
 ---
 
@@ -181,9 +218,9 @@ Product Development Engineer — Pi Photonics, Hamamatsu, Japan
 
 - 📮 Email: [bintemaliha19@gmail.com](mailto:bintemaliha19@gmail.com)
 - 🐙 GitHub: [@maliha-usui](https://github.com/maliha-usui)
-- 💼 LinkedIn: [Maliha Binte Mamun](www.linkedin.com/in/maliha-binte-mamun-8a5708161)
+- 💼 LinkedIn: [Maliha Binte Mamun](https://www.linkedin.com/in/maliha-binte-mamun-8a5708161)
 - 🤗 HuggingFace: [maliha](https://huggingface.co/maliha)
 
 ---
 
-*This is an independent research project developed in 2025. The dataset builds on publicly available Reddit data.*
+*Independent research project, 2025. Builds on publicly available Reddit data.*
