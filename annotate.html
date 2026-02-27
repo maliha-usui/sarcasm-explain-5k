@@ -685,6 +685,8 @@ FORM_URLS["INT047"] = "https://docs.google.com/forms/d/e/1FAIpQLSfDmDVsKllBX9iXf
 FORM_URLS["INT048"] = "https://docs.google.com/forms/d/e/1FAIpQLSeKuQk09GRdyHMI7D9icQrcCUamfPe-c4ruhp__cor0sRvkAA/viewform";
 FORM_URLS["INT049"] = "https://docs.google.com/forms/d/e/1FAIpQLSe6Y4B-MwJ9Jh4vmQD8tpx59tuAL6IO4tuHC3pWbA9X3GdNpA/viewform";
 FORM_URLS["INT050"] = "https://docs.google.com/forms/d/e/1FAIpQLSdlFKHtRdwVSu8L8gWHO184A6rl9nJ_UvlHAJjgvMfJRNWZgg/viewform";
+
+
   let currentType = 'cog';
 
   function switchType(type) {
@@ -698,6 +700,15 @@ FORM_URLS["INT050"] = "https://docs.google.com/forms/d/e/1FAIpQLSdlFKHtRdwVSu8L8
     });
   }
 
+  // Shuffle array randomly (Fisher-Yates) so every visitor sees a different form order
+  function shuffle(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr;
+  }
+
   function buildGrid() {
     const grid = document.getElementById('form-grid');
     const types = [
@@ -705,7 +716,11 @@ FORM_URLS["INT050"] = "https://docs.google.com/forms/d/e/1FAIpQLSdlFKHtRdwVSu8L8
       { prefix: 'INT', type: 'int', count: 50 }
     ];
     types.forEach(({ prefix, type, count }) => {
-      for (let i = 1; i <= count; i++) {
+      // Shuffle so each visitor sees forms in a different order
+      // This spreads annotations across all 50 forms instead of everyone picking COG001
+      const numbers = shuffle(Array.from({ length: count }, (_, i) => i + 1));
+
+      numbers.forEach(i => {
         const code = `${prefix}${String(i).padStart(3,'0')}`;
         const url = FORM_URLS[code] || '#';
         const card = document.createElement('a');
@@ -723,7 +738,7 @@ FORM_URLS["INT050"] = "https://docs.google.com/forms/d/e/1FAIpQLSdlFKHtRdwVSu8L8
           if (url === '#') { e.preventDefault(); alert('Form URL coming soon. Check back shortly!'); }
         });
         grid.appendChild(card);
-      }
+      });
     });
   }
 
