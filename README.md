@@ -157,13 +157,13 @@ Explanations were generated using OpenAI GPT-4 with carefully engineered prompts
 4. Post-process for consistency and quality
 5. Create human evaluation forms for validation
 
-See [`code/ParaphraseSarcasm.ipynb`](code/ParaphraseSarcasm.ipynb) for the full pipeline.
+<!--See [`code/ParaphraseSarcasm.ipynb`](code/ParaphraseSarcasm.ipynb) for the full pipeline.
 
 > **Note:** To run the notebook, set your OpenAI API key as an environment variable:
 > ```bash
 > export OPENAI_API_KEY="your-key-here"
 > ```
-
+-->
 ---
 
 ## 🎯 Applications
